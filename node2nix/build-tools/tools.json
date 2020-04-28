@@ -1,0 +1,6 @@
+[
+  "webpack",
+  {
+    "webpack-cli": "3.1.2"
+  }
+]

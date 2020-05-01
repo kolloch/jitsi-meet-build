@@ -14,6 +14,7 @@
   else sources.jitsi-meet
 , gitignoreSrc ? sources.gitignore
 , gitignore ? pkgs.callPackage gitignoreSrc {}
+, dependencies ? pkgs.callPackage ./nix/dependencies.nix {}
 }:
 
 rec {
@@ -54,8 +55,7 @@ rec {
         in
         [
           { name = "libs"; path = internal.libs; }
-          # This should also be built and not simply copied
-          (filteredSubDir "css" [ "all.css" ])
+          { name = "css"; path = internal.buildCss; }
           (filteredSubDir "resources" [ "robots.css" ])
         ];
       dirs = pkgs.linkFarm "jitsi-meet-dirs" (staticDirs ++ processedDirs);
@@ -78,12 +78,98 @@ rec {
   internal = {
     # Does not work current. :(
     # libs = internal.libsViaNode2Nix;
-    libs = internal.libsViaCopy;
+    libs = internal.libBuildLibs;
 
     /* Just copy the libs directory into nix. Requires them to have been built
        outside nix already.
     */
-    libsViaCopy = builtins.path { path = "${builtins.toString jitsiMeetSrc}/libs"; };
+    libsViaCopyImpure = builtins.path { path = "${builtins.toString jitsiMeetSrc}/libs"; };
+
+    libNodeModules = pkgs.stdenv.mkDerivation {
+      name = "jitsi-meet-node-modules";
+      src = internal.libsSrc;
+      phases = [ "unpackPhase" "buildPhase" "fixupPhase" ];
+      buildInputs = lib.attrValues dependencies.dev;
+      buildPhase = ''
+        export HOME=$(pwd)
+        npm install --ignore-scripts
+        mv node_modules $out
+      '';
+      outputHash = "sha256:1zj5yflf1szk9hcgxjpawz3dnkmwxy9nrjkj9l1ml2kidg0jfqsc";
+      outputHashMode = "recursive";
+    };
+
+    libNodeModulesPlus = pkgs.stdenv.mkDerivation {
+      name = "jitsi-meet-lib-webpack";
+      buildInputs = lib.attrValues dependencies.dev;
+      src = internal.libsSrc;
+      phases = [ "unpackPhase" "buildPhase" ];
+      buildPhase = ''
+        export HOME=$(pwd)
+        set -x
+        trap 'set +x' ERR
+
+        [ -r node_modules ] && exit 1
+
+        # mkdir node_modules
+        # ln -s ${internal.libNodeModules}/{.bin,*} node_modules
+        # rm node_modules/lib-jitsi-meet
+        # cp -R ${internal.libNodeModules}/lib-jitsi-meet node_modules
+
+        cp -R ${internal.libNodeModules} node_modules
+        chmod -R +w node_modules
+        pushd node_modules/lib-jitsi-meet
+        ../.bin/webpack -p
+        [ -r lib-jitsi-meet.min.js \
+          -a -r lib-jitsi-meet.min.map ] || exit 2
+        popd
+
+        mv node_modules $out
+
+        { set +x; } 2>/dev/null
+      '';
+    };
+
+    libBuildLibs = pkgs.stdenv.mkDerivation {
+      name = "jitsi-meet-build";
+      buildInputs = lib.attrValues dependencies.dev;
+      src = internal.libsSrc;
+      phases = [ "unpackPhase" "buildPhase" ];
+      buildPhase = ''
+        export HOME=$(pwd)
+        set -x
+        cp -R ${internal.libNodeModulesPlus} node_modules
+        chmod -R +w node_modules
+        make compile
+        make deploy-init
+        make deploy-appbundle
+        make deploy-rnnoise-binary
+        make deploy-lib-jitsi-meet
+        make deploy-libflac
+        mkdir $out
+        mv libs $out/
+        set +x
+      '';
+    };
+
+    buildCss = pkgs.stdenv.mkDerivation {
+      name = "jitsi-meet-css";
+      buildInputs = (lib.attrValues dependencies.dev) ++ [
+        pkgs.sassc
+      ];
+      src = internal.libsSrc;
+      phases = [ "unpackPhase" "buildPhase" ];
+      buildPhase = ''
+        export HOME=$(pwd)
+        set -x
+        cp -R ${internal.libNodeModulesPlus} node_modules
+        chmod -R +w node_modules
+        mkdir $out
+        sassc css/main.scss css/all.css
+        cp css/all.css $out
+        set +x
+      '';
+    };
 
     libsViaNode2Nix =
       let

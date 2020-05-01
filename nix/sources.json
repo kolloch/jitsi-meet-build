@@ -11,6 +11,18 @@
         "url": "https://github.com/hercules-ci/gitignore/archive/2ced4519f865341adcb143c5d668f955a2cb997f.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "jitsi-meet": {
+        "branch": "master",
+        "description": "Jitsi Meet - Secure, Simple and Scalable Video Conferences that you use as a standalone app or embed in your web application.",
+        "homepage": "https://jitsi.org/meet",
+        "owner": "kolloch",
+        "repo": "jitsi-meet",
+        "rev": "532243c19df42c4e2754e6579f5e1e2d4b8121ba",
+        "sha256": "0536kxzp6l5fzphhcjc3fn0cx5l983zk1h6q6j0gjj472p2l0jmm",
+        "type": "tarball",
+        "url": "https://github.com/kolloch/jitsi-meet/archive/532243c19df42c4e2754e6579f5e1e2d4b8121ba.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "napalm": {
         "branch": "master",
         "description": "Support for building npm packages in Nix and lightweight npm registry",

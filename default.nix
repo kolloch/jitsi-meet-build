@@ -3,9 +3,10 @@
 , lib ? pkgs.lib
 , nodejs ? pkgs.nodejs-12_x
 , sources ? import nix/sources.nix
+, forceSources ? false
   # If you check out the jitsi-meet sources into ../jitsi-meet,
   # they are automatically picked up.
-, jitsiMeetSrc ? if builtins.pathExists ../jitsi-meet
+, jitsiMeetSrc ? if !forceSources && builtins.pathExists ../jitsi-meet
   then
     let
       path = ../jitsi-meet;
@@ -69,8 +70,7 @@ rec {
             outputHashMode = "recursive";
           };
       in
-        # kollochNurPackages.lib.rerunFixedDerivationOnChange
-        derivation;
+        kollochNurPackages.lib.rerunFixedDerivationOnChange derivation;
 
     libNodeModulesPlus = pkgs.stdenv.mkDerivation {
       name = "jitsi-meet-lib-webpack";

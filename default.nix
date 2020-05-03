@@ -15,6 +15,7 @@
 , gitignoreSrc ? sources.gitignore
 , gitignore ? pkgs.callPackage gitignoreSrc {}
 , dependencies ? pkgs.callPackage ./nix/dependencies.nix {}
+, kollochNurPackages ? import sources.kollochNurPackages {}
 }:
 
 rec {
@@ -85,19 +86,23 @@ rec {
     */
     libsViaCopyImpure = builtins.path { path = "${builtins.toString jitsiMeetSrc}/libs"; };
 
-    libNodeModules = pkgs.stdenv.mkDerivation {
-      name = "jitsi-meet-node-modules";
-      src = internal.libsSrc;
-      phases = [ "unpackPhase" "buildPhase" "fixupPhase" ];
-      buildInputs = lib.attrValues dependencies.dev;
-      buildPhase = ''
-        export HOME=$(pwd)
-        npm install --ignore-scripts
-        mv node_modules $out
-      '';
-      outputHash = "sha256:1zj5yflf1szk9hcgxjpawz3dnkmwxy9nrjkj9l1ml2kidg0jfqsc";
-      outputHashMode = "recursive";
-    };
+    libNodeModules =
+      let derivation = pkgs.stdenv.mkDerivation {
+            name = "jitsi-meet-node-modules";
+            src = internal.libsSrc;
+            phases = [ "unpackPhase" "buildPhase" "fixupPhase" ];
+            buildInputs = lib.attrValues dependencies.dev;
+
+            buildPhase = ''
+              export HOME=$(pwd)
+              npm install --ignore-scripts
+              mv node_modules $out
+            '';
+            outputHash = "sha256:1zj5yflf1szk9hcgxjpawz3dnkmwxy9nrjkj9l1ml2kidg0jfqsc";
+            outputHashMode = "recursive";
+          };
+      in
+      kollochNurPackages.lib.rerunFixedDerivationOnChange derivation;
 
     libNodeModulesPlus = pkgs.stdenv.mkDerivation {
       name = "jitsi-meet-lib-webpack";
@@ -162,12 +167,11 @@ rec {
       buildPhase = ''
         export HOME=$(pwd)
         set -x
-        cp -R ${internal.libNodeModulesPlus} node_modules
+        cp -R ${internal.libNodeModules} node_modules
         chmod -R +w node_modules
         mkdir $out
-        sassc css/main.scss css/all.css
-        cp css/all.css $out
-        set +x
+        sassc css/main.scss $out/all.css
+        { set +x; } 2>/dev/null
       '';
     };
 

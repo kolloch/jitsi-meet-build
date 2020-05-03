@@ -1,4 +1,16 @@
 {
+    "NUR": {
+        "branch": "master",
+        "description": "Nix User Repository: User contributed nix packages [maintainer=@Mic92]",
+        "homepage": "",
+        "owner": "nix-community",
+        "repo": "NUR",
+        "rev": "788a74c6f3bc956724cbd329578b6b1f66862c9e",
+        "sha256": "0wxh6ig0a273sh974yz9ld2fc0z581b7pcc9mpkbarmq40hjy4jf",
+        "type": "tarball",
+        "url": "https://github.com/nix-community/NUR/archive/788a74c6f3bc956724cbd329578b6b1f66862c9e.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
     "gitignore": {
         "branch": "master",
         "description": "Nix function for filtering local git sources",
@@ -21,6 +33,18 @@
         "sha256": "0536kxzp6l5fzphhcjc3fn0cx5l983zk1h6q6j0gjj472p2l0jmm",
         "type": "tarball",
         "url": "https://github.com/kolloch/jitsi-meet/archive/532243c19df42c4e2754e6579f5e1e2d4b8121ba.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "kollochNurPackages": {
+        "branch": "master",
+        "description": "Home of some custom nixpkgs",
+        "homepage": null,
+        "owner": "kolloch",
+        "repo": "nur-packages",
+        "rev": "7df52044c3b936f17255faa5556740d383ab9354",
+        "sha256": "1gh6id9aajd83hjml148l2ghyq5v9d8pyx82m8iphvqhp0j7n6ij",
+        "type": "tarball",
+        "url": "https://github.com/kolloch/nur-packages/archive/7df52044c3b936f17255faa5556740d383ab9354.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "napalm": {

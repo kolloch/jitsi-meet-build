@@ -135,8 +135,7 @@ rec {
       buildPhase = ''
         export HOME=$(pwd)
         set -x
-        cp -R ${internal.libNodeModules} node_modules
-        chmod -R +w node_modules
+        ln -s ${internal.libNodeModules} node_modules
         mkdir $out
         sassc css/main.scss $out/all.css
         { set +x; } 2>/dev/null

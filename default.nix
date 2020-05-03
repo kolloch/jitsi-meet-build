@@ -89,7 +89,12 @@ rec {
     libNodeModules =
       let derivation = pkgs.stdenv.mkDerivation {
             name = "jitsi-meet-node-modules";
-            src = internal.libsSrc;
+            src =
+              lib.sourceByRegex
+                internal.libsSrc [
+                  "package.json"
+                  "package-lock.json"
+                ];
             phases = [ "unpackPhase" "buildPhase" "fixupPhase" ];
             buildInputs = lib.attrValues dependencies.dev;
 

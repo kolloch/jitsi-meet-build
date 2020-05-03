@@ -32,8 +32,7 @@ rec {
       mkdir $out/css
       cp ${internal.buildCss}/all.css $out/css
 
-      mkdir $out/libs
-      cp -R ${internal.libs}/* $out/libs
+      cp -R ${internal.libs}/libs $out
     '';
 
   internal = {

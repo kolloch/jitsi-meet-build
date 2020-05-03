@@ -99,18 +99,19 @@ rec {
       phases = [ "unpackPhase" "buildPhase" ];
       buildPhase = ''
         export HOME=$(pwd)
-        set -x
-        cp -R ${internal.libNodeModulesPlus} node_modules
-        chmod -R +w node_modules
-        make compile
-        make deploy-init
-        make deploy-appbundle
-        make deploy-rnnoise-binary
-        make deploy-lib-jitsi-meet
-        make deploy-libflac
-        mkdir $out
-        mv libs $out/
-        set +x
+        (
+          set -x
+          cp -R ${internal.libNodeModulesPlus} node_modules
+          chmod -R +w node_modules
+          make compile
+          make deploy-init
+          make deploy-appbundle
+          make deploy-rnnoise-binary
+          make deploy-lib-jitsi-meet
+          make deploy-libflac
+          mkdir $out
+          mv libs $out/
+        )
       '';
     };
 

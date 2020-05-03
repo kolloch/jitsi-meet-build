@@ -19,62 +19,22 @@
 }:
 
 rec {
-  /* Derives a package including static files and the minified/"compiled" libs. */
+  /* Copy it all together. */
   package =
-    assert lib.canCleanSource jitsiMeetSrc;
-    let
-      subDir = name: "${builtins.toString jitsiMeetSrc}/${name}";
-
-      # Copy some directories verbatim into destination.
-      staticDirs =
-        let subDirInStore = name:
-            builtins.path {
-              # We want to prevent putting all of the jitsiMeetSrc dir into
-              # the store but we DO want to put the sub directory into the store.
-              path = subDir name;
-              inherit name;
-            };
-          toSubPathName = name: { inherit name; path = subDirInStore name; };
-        in
-        builtins.map toSubPathName [
-          "connection_optimization"
-          "fonts"
-          "images"
-          "static"
-          "sounds"
-          "lang"
-        ];
-
-      processedDirs =
-        let filteredSubDir = name: allowedPatterns:
-          assert builtins.isString name;
-          assert builtins.isList allowedPatterns;
-          {
-            inherit name;
-            path = lib.sourceByRegex (subDir name) allowedPatterns;
-          };
-        in
-        [
-          { name = "libs"; path = internal.libs; }
-          { name = "css"; path = internal.buildCss; }
-          (filteredSubDir "resources" [ "robots.css" ])
-        ];
-      dirs = pkgs.linkFarm "jitsi-meet-dirs" (staticDirs ++ processedDirs);
-      staticFiles = lib.sourceByRegex jitsiMeetSrc [
-        ''[^.].*\.js''
-        ''.*\.html''
-        "favicon.ico"
-        "LICENSE"
-      ];
-      joined = pkgs.symlinkJoin {
-        name = "jitsi-meet-symlinked";
-        paths = [ staticFiles dirs ];
-      };
-      # Deep copy, ensure no dangling symlinks
+    let src = internal.libsSrc;
     in
-      pkgs.runCommand "jitsi-meet-package" {} ''
-        cp -RL ${joined} $out
-      '';
+    pkgs.runCommand "jitsi-meet-package" {} ''
+      mkdir $out
+      cp ${src}/*.{js,html} $out
+      cp ${src}/{favicon.ico,LICENSE,resources/robots.txt} $out
+      cp -R ${src}/{connection_optimization,fonts,images,static,sounds,lang} $out
+
+      mkdir $out/css
+      cp ${internal.buildCss}/all.css $out/css
+
+      mkdir $out/libs
+      cp -R ${internal.libs}/* $out/libs
+    '';
 
   internal = {
     # Does not work current. :(
@@ -84,17 +44,20 @@ rec {
     /* Just copy the libs directory into nix. Requires them to have been built
        outside nix already.
     */
-    libsViaCopyImpure = builtins.path { path = "${builtins.toString jitsiMeetSrc}/libs"; };
+    libsViaCopyImpure = builtins.path { path = "${builtins.toString internal.unpackedLibSrc}/libs"; };
 
     libNodeModules =
       let derivation = pkgs.stdenv.mkDerivation {
             name = "jitsi-meet-node-modules";
             src =
-              lib.sourceByRegex
+              if lib.canCleanSource internal.libsSrc
+              then lib.sourceByRegex
                 internal.libsSrc [
                   "package.json"
                   "package-lock.json"
-                ];
+                ]
+              else internal.libsSrc;
+
             phases = [ "unpackPhase" "buildPhase" "fixupPhase" ];
             buildInputs = lib.attrValues dependencies.dev;
 
@@ -107,7 +70,8 @@ rec {
             outputHashMode = "recursive";
           };
       in
-      kollochNurPackages.lib.rerunFixedDerivationOnChange derivation;
+        # kollochNurPackages.lib.rerunFixedDerivationOnChange
+        derivation;
 
     libNodeModulesPlus = pkgs.stdenv.mkDerivation {
       name = "jitsi-meet-lib-webpack";
@@ -213,7 +177,12 @@ rec {
 
     /* Returns the cleaned sources for the jtisi-meet libs. */
     libsSrc =
-      assert lib.canCleanSource jitsiMeetSrc;
+      if lib.isDerivation jitsiMeetSrc || lib.isStorePath jitsiMeetSrc
+      then jitsiMeetSrc
+      else internal.libsSrcFromLocal;
+
+    /* Clean local sources to speed up initial nix store import. */
+    libsSrcFromLocal =
       let
         precleaned = lib.cleanSource jitsiMeetSrc;
         prune = name: type:
@@ -233,5 +202,6 @@ rec {
         pruned = lib.cleanSourceWith { filter = prune; src = precleaned; };
       in
         gitignore.gitignoreSource pruned;
+
   };
 }

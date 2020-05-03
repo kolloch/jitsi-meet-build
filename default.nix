@@ -79,27 +79,16 @@ rec {
       phases = [ "unpackPhase" "buildPhase" ];
       buildPhase = ''
         export HOME=$(pwd)
-        set -x
-        trap 'set +x' ERR
-
-        [ -r node_modules ] && exit 1
-
-        # mkdir node_modules
-        # ln -s ${internal.libNodeModules}/{.bin,*} node_modules
-        # rm node_modules/lib-jitsi-meet
-        # cp -R ${internal.libNodeModules}/lib-jitsi-meet node_modules
-
-        cp -R ${internal.libNodeModules} node_modules
-        chmod -R +w node_modules
-        pushd node_modules/lib-jitsi-meet
-        ../.bin/webpack -p
-        [ -r lib-jitsi-meet.min.js \
-          -a -r lib-jitsi-meet.min.map ] || exit 2
-        popd
-
+        (
+          set -x
+          cp -R ${internal.libNodeModules} node_modules
+          chmod -R +w node_modules
+          cd node_modules/lib-jitsi-meet
+          ../.bin/webpack -p
+          [ -r lib-jitsi-meet.min.js \
+            -a -r lib-jitsi-meet.min.map ] || exit 2
+        )
         mv node_modules $out
-
-        { set +x; } 2>/dev/null
       '';
     };
 

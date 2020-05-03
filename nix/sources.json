@@ -1,16 +1,4 @@
 {
-    "NUR": {
-        "branch": "master",
-        "description": "Nix User Repository: User contributed nix packages [maintainer=@Mic92]",
-        "homepage": "",
-        "owner": "nix-community",
-        "repo": "NUR",
-        "rev": "788a74c6f3bc956724cbd329578b6b1f66862c9e",
-        "sha256": "0wxh6ig0a273sh974yz9ld2fc0z581b7pcc9mpkbarmq40hjy4jf",
-        "type": "tarball",
-        "url": "https://github.com/nix-community/NUR/archive/788a74c6f3bc956724cbd329578b6b1f66862c9e.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
     "gitignore": {
         "branch": "master",
         "description": "Nix function for filtering local git sources",
@@ -41,10 +29,10 @@
         "homepage": null,
         "owner": "kolloch",
         "repo": "nur-packages",
-        "rev": "7df52044c3b936f17255faa5556740d383ab9354",
-        "sha256": "1gh6id9aajd83hjml148l2ghyq5v9d8pyx82m8iphvqhp0j7n6ij",
+        "rev": "622973d052644a0e3df7a9b61457256c11c0894f",
+        "sha256": "1lw30h8qfxf9j3rmxvlcj6cdvrahfdwfznq1jf5wxa98m8z5xns1",
         "type": "tarball",
-        "url": "https://github.com/kolloch/nur-packages/archive/7df52044c3b936f17255faa5556740d383ab9354.tar.gz",
+        "url": "https://github.com/kolloch/nur-packages/archive/622973d052644a0e3df7a9b61457256c11c0894f.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "napalm": {
@@ -77,10 +65,10 @@
         "homepage": "https://github.com/NixOS/nixpkgs",
         "owner": "NixOS",
         "repo": "nixpkgs-channels",
-        "rev": "c4799f080ba4479548f898a5eed66628c0e9200a",
-        "sha256": "1cpl9mv81q5jqkfbadpv9qpyhcsjd75waym9zd6r0nlv69107xxv",
+        "rev": "a7ceb2536ab11973c59750c4c48994e3064a75fa",
+        "sha256": "0hka65f31njqpq7i07l22z5rs7lkdfcl4pbqlmlsvnysb74ynyg1",
         "type": "tarball",
-        "url": "https://github.com/NixOS/nixpkgs-channels/archive/c4799f080ba4479548f898a5eed66628c0e9200a.tar.gz",
+        "url": "https://github.com/NixOS/nixpkgs-channels/archive/a7ceb2536ab11973c59750c4c48994e3064a75fa.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     }
 }

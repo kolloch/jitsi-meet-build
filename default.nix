@@ -47,7 +47,7 @@ rec {
     libsViaCopyImpure = builtins.path { path = "${builtins.toString internal.unpackedLibSrc}/libs"; };
 
     libNodeModules =
-      let derivation = pkgs.stdenv.mkDerivation {
+      let install = pkgs.stdenv.mkDerivation {
             name = "jitsi-meet-node-modules";
             src =
               if lib.canCleanSource internal.libsSrc
@@ -58,7 +58,9 @@ rec {
                 ]
               else internal.libsSrc;
 
-            phases = [ "unpackPhase" "buildPhase" "fixupPhase" ];
+            # No "fixupPhase" because that changes paths
+            # dependent on the node version
+            phases = [ "unpackPhase" "buildPhase" ];
             buildInputs = lib.attrValues dependencies.dev;
 
             buildPhase = ''
@@ -66,11 +68,28 @@ rec {
               npm install --ignore-scripts
               mv node_modules $out
             '';
-            outputHash = "sha256:1zj5yflf1szk9hcgxjpawz3dnkmwxy9nrjkj9l1ml2kidg0jfqsc";
+            outputHash = "sha256:1c71x1g0dbvbvjxd5ylqhqkncrf620agdh24m4k47rhl5fbl545w";
             outputHashMode = "recursive";
           };
-      in
-        kollochNurPackages.lib.rerunFixedDerivationOnChange derivation;
+
+          installOnChange = kollochNurPackages.lib.rerunFixedDerivationOnChange install;
+
+          installFixup = pkgs.stdenv.mkDerivation {
+            name = "jitsi-meet-node-modules-fixup";
+            src = installOnChange;
+
+            # No "fixupPhase" because that changes paths
+            # dependent on the node version
+            phases = [ "unpackPhase" "buildPhase" "fixupPhase" ];
+            buildInputs = lib.attrValues dependencies.dev;
+
+            buildPhase = ''
+              mkdir $out
+              cp -R $src/{.[!.]*,*} $out
+              chmod -R +w $out
+            '';
+          };
+      in installFixup;
 
     libNodeModulesPlus = pkgs.stdenv.mkDerivation {
       name = "jitsi-meet-lib-webpack";

@@ -17,10 +17,10 @@
         "homepage": "https://jitsi.org/meet",
         "owner": "kolloch",
         "repo": "jitsi-meet",
-        "rev": "d2c5d836f365eef7349174ef0f5dc52a0acebb4f",
-        "sha256": "0rln1zvyshsi0k370czsrnv5mhrbyqg5nixd6n4w0mawf253y8i2",
+        "rev": "fa44d4d62145bcc7dd819cd50def986c53ee98ce",
+        "sha256": "0spjniq1ksg6c599wxh7fsggs4vy5h45535sj4sar25pr9q05s7y",
         "type": "tarball",
-        "url": "https://github.com/kolloch/jitsi-meet/archive/d2c5d836f365eef7349174ef0f5dc52a0acebb4f.tar.gz",
+        "url": "https://github.com/kolloch/jitsi-meet/archive/fa44d4d62145bcc7dd819cd50def986c53ee98ce.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "kollochNurPackages": {

@@ -41,11 +41,6 @@ rec {
     # libs = internal.libsViaNode2Nix;
     libs = internal.libBuildLibs;
 
-    /* Just copy the libs directory into nix. Requires them to have been built
-       outside nix already.
-    */
-    libsViaCopyImpure = builtins.path { path = "${builtins.toString internal.unpackedLibSrc}/libs"; };
-
     libNodeModules =
       let install = pkgs.stdenv.mkDerivation {
             name = "jitsi-meet-node-modules";
@@ -150,37 +145,6 @@ rec {
         { set +x; } 2>/dev/null
       '';
     };
-
-    libsViaNode2Nix =
-      let
-        nodeEnv = import ./node2nix/node-env.nix {
-          inherit (pkgs) stdenv python2 utillinux runCommand writeTextFile;
-          inherit nodejs;
-          libtool = if pkgs.stdenv.isDarwin then pkgs.darwin.cctools else null;
-        };
-        nodePackages = import ./node2nix/node-packages.nix {
-          inherit (pkgs) fetchurl fetchgit;
-          inherit nodeEnv;
-        };
-      in
-        nodeEnv.buildNodePackage
-          (
-            nodePackages.args // {
-              src = internal.libsSrc;
-              dontNpmInstall = true;
-              buildInputs = [
-                pkgs.nodePackages.webpack-cli
-                pkgs.breakpointHook
-              ];
-              preInstall = ''
-                echo "XXXXXXXXXXXXXXX ALIAS FOR webpack XXXXXXXXXXXXXX"
-                alias webpack=webpack-cli
-              '';
-            }
-          );
-
-    buildTools = pkgs.callPackage ./node2nix/build-tools/default.nix {};
-    webpack = internal.buildTools."webpack-cli-3.1.2";
 
     /* Returns the cleaned sources for the jtisi-meet libs. */
     libsSrc =
